@@ -1,4 +1,4 @@
-module github.com/cryptorities/hashimotoserv
+module github.com/cryptorities/hashimoto
 
 go 1.14
 
