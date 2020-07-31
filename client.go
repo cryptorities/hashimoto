@@ -2,7 +2,7 @@ package hashimoto
 
 import (
 	"github.com/consensusdb/value"
-	"github.com/consensusdb/value-rpc/client"
+	vrpc "github.com/consensusdb/value-rpc/valueclient"
 	"github.com/pkg/errors"
 )
 
@@ -10,14 +10,14 @@ const defaultAddress = "localhost:9777"
 
 type hashimotoClient struct {
 	address string
-	cli     client.Client
+	cli     vrpc.Client
 }
 
 func NewClient(address, socks5 string) (Client, error) {
 
 	return &hashimotoClient{
 		address: address,
-		cli:     client.NewClient(address, socks5),
+		cli:     vrpc.NewClient(address, socks5),
 	}, nil
 }
 
@@ -25,11 +25,11 @@ func NewDefaultClient() (Client, error) {
 	return NewClient(defaultAddress, "")
 }
 
-func (t *hashimotoClient) Close() {
-	t.cli.Close()
+func (t *hashimotoClient) Close() error {
+	return t.cli.Close()
 }
 
-func (t *hashimotoClient) VRpcClient() client.Client {
+func (t *hashimotoClient) RPC() vrpc.Client {
 	return t.cli
 }
 

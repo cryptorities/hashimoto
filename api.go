@@ -1,9 +1,12 @@
 package hashimoto
 
-import "github.com/consensusdb/value-rpc/client"
+import (
+	vrpc "github.com/consensusdb/value-rpc/valueclient"
+)
 
 type Client interface {
-	VRpcClient() client.Client
+
+	RPC() vrpc.Client
 
 	Status() (string, error)
 
@@ -12,4 +15,6 @@ type Client interface {
 	FullHash(blockNum uint64, hashNoNonce []byte, nonce uint64) (digest []byte, result []byte, err error)
 
 	Stop(token string) error
+
+	Close() error
 }
