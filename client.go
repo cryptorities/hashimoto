@@ -2,7 +2,8 @@ package hashimoto
 
 import (
 	"github.com/consensusdb/value"
-	vrpc "github.com/consensusdb/value-rpc/valueclient"
+	client "github.com/consensusdb/value-rpc/valueclient"
+	"github.com/consensusdb/value-rpc/valuerpc"
 	"github.com/pkg/errors"
 )
 
@@ -10,14 +11,14 @@ const defaultAddress = "localhost:9777"
 
 type hashimotoClient struct {
 	address string
-	cli     vrpc.Client
+	cli     client.Client
 }
 
 func NewClient(address, socks5 string) (Client, error) {
 
 	return &hashimotoClient{
 		address: address,
-		cli:     vrpc.NewClient(address, socks5),
+		cli:     client.NewClient(address, socks5),
 	}, nil
 }
 
@@ -29,7 +30,7 @@ func (t *hashimotoClient) Close() error {
 	return t.cli.Close()
 }
 
-func (t *hashimotoClient) RPC() vrpc.Client {
+func (t *hashimotoClient) RPC() client.Client {
 	return t.cli
 }
 
@@ -53,6 +54,7 @@ func (t *hashimotoClient) Generate(blockNum uint64) error {
 
 }
 
+var FullHashResultDef = valuerpc.List(valuerpc.String, valuerpc.String)
 func (t *hashimotoClient) FullHash(blockNum uint64, hashNoNonce []byte, nonce uint64) ([]byte, []byte, error) {
 
 	args := value.EmptyList().
@@ -65,17 +67,13 @@ func (t *hashimotoClient) FullHash(blockNum uint64, hashNoNonce []byte, nonce ui
 		return nil, nil, err
 	}
 
-	if res == nil || res.Kind() != value.LIST {
-		return nil,nil, errors.Errorf("invalid result %v", res)
+	if !valuerpc.Verify(res, FullHashResultDef) {
+		return nil, nil, errors.Errorf("invalid result: %s", value.Jsonify(res))
 	}
 
-	resList := res.(value.List)
-	digest := resList.GetStringAt(0)
-	result := resList.GetStringAt(1)
-
-	if digest == nil || result == nil {
-		return nil, nil, errors.Errorf("empty field in result %v", resList.String())
-	}
+	list := res.(value.List)
+	digest := list.GetStringAt(0)
+	result := list.GetStringAt(1)
 
 	return digest.Raw(), result.Raw(), nil
 }

@@ -1,12 +1,12 @@
 package hashimoto
 
 import (
-	vrpc "github.com/consensusdb/value-rpc/valueclient"
+	client "github.com/consensusdb/value-rpc/valueclient"
 )
 
 type Client interface {
 
-	RPC() vrpc.Client
+	RPC() client.Client
 
 	Status() (string, error)
 
